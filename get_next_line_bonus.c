@@ -6,7 +6,7 @@
 /*   By: nyoong <nyoong@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 16:45:09 by nyoong            #+#    #+#             */
-/*   Updated: 2024/11/07 16:45:11 by nyoong           ###   ########.fr       */
+/*   Updated: 2024/11/07 17:18:01 by nyoong           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # define BUFFER_SIZE 42
 #endif
 
-static	t_fd_buffer *get_fd_buffer(t_fd_buffer **head, int fd)
+static t_fd_buffer	*get_fd_buffer(t_fd_buffer **head, int fd)
 {
 	t_fd_buffer	*current;
 	t_fd_buffer	*new_node;
@@ -95,7 +95,8 @@ static int	read_and_save(int fd, char **saved)
 	ssize_t	bytes_read;
 	char	*temp;
 
-	while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0)
+	bytes_read = read(fd, buffer, BUFFER_SIZE);
+	while (bytes_read > 0)
 	{
 		buffer[bytes_read] = '\0';
 		if (*saved)
@@ -108,7 +109,8 @@ static int	read_and_save(int fd, char **saved)
 			*saved = ft_strdup(buffer);
 		if (ft_strchr(*saved, '\n'))
 			return (1);
-    }
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+	}
 	if (bytes_read == 0 && (!*saved || **saved == '\0'))
 		return (0);
 	return (bytes_read);
@@ -126,10 +128,13 @@ char	*get_next_line(int fd)
 		free_fd_buffer(&head, fd);
 		return (NULL);
 	}
-    if (read_and_save(fd, &fd_buffer->saved) <= 0 && (!fd_buffer->saved || fd_buffer->saved[0] == '\0'))
+	if (read_and_save(fd, &fd_buffer->saved) <= 0)
 	{
-		free_fd_buffer(&head, fd);
-		return NULL;
+		if (!fd_buffer->saved || fd_buffer->saved[0] == '\0')
+		{
+			free_fd_buffer(&head, fd);
+			return (NULL);
+		}
 	}
 	line = extract_and_update_buffer(&fd_buffer->saved);
 	return (line);

@@ -6,7 +6,7 @@
 /*   By: nyoong <nyoong@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 16:44:47 by nyoong            #+#    #+#             */
-/*   Updated: 2024/11/07 16:45:16 by nyoong           ###   ########.fr       */
+/*   Updated: 2024/11/07 17:20:06 by nyoong           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static char	*extract_and_update_buffer(char **saved)
 	char	*line;
 	char	*new_saved;
 
-    len = 0;
+	len = 0;
 	while ((*saved)[len] && (*saved)[len] != '\n')
 		len++;
 	if ((*saved)[len] == '\n')
@@ -49,9 +49,10 @@ static int	read_and_save(int fd, char **saved)
 	ssize_t	bytes_read;
 	char	*temp;
 
-    while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0)
+	bytes_read = read(fd, buffer, BUFFER_SIZE);
+	while (bytes_read > 0)
 	{
-        buffer[bytes_read] = '\0';
+		buffer[bytes_read] = '\0';
 		if (*saved)
 		{
 			temp = ft_strjoin(*saved, buffer);
@@ -62,6 +63,7 @@ static int	read_and_save(int fd, char **saved)
 			*saved = ft_strdup(buffer);
 		if (ft_strchr(*saved, '\n'))
 			return (1);
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
 	}
 	if (bytes_read == 0 && (!*saved || **saved == '\0'))
 		return (0);
