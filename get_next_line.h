@@ -2,6 +2,7 @@
 # define GET_NEXT_LINE_H
 
 # include <stddef.h>
+# include <stdlib.h>
 
 size_t	ft_strlen(const char *str);
 char	*ft_strchr(const char *s, int c);
