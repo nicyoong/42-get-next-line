@@ -1,0 +1,6 @@
+*.txt
+*.out
+*.exe
+
+gnlTester/
+gnl-station-tester/

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nyoong <nyoong@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/07 16:45:09 by nyoong            #+#    #+#             */
+/*   Updated: 2024/11/07 16:45:11 by nyoong           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <unistd.h>
 #include "get_next_line_bonus.h"
 
@@ -97,6 +109,8 @@ static int	read_and_save(int fd, char **saved)
 		if (ft_strchr(*saved, '\n'))
 			return (1);
     }
+	if (bytes_read == 0 && (!*saved || **saved == '\0'))
+		return (0);
 	return (bytes_read);
 }
 
@@ -112,7 +126,7 @@ char	*get_next_line(int fd)
 		free_fd_buffer(&head, fd);
 		return (NULL);
 	}
-    if (fd_buffer->saved == NULL || fd_buffer->saved[0] == '\0')
+    if (read_and_save(fd, &fd_buffer->saved) <= 0 && (!fd_buffer->saved || fd_buffer->saved[0] == '\0'))
 	{
 		free_fd_buffer(&head, fd);
 		return NULL;

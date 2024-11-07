@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nyoong <nyoong@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/07 16:44:47 by nyoong            #+#    #+#             */
+/*   Updated: 2024/11/07 16:45:16 by nyoong           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <unistd.h>
 #include "get_next_line.h"
 
@@ -51,6 +63,8 @@ static int	read_and_save(int fd, char **saved)
 		if (ft_strchr(*saved, '\n'))
 			return (1);
 	}
+	if (bytes_read == 0 && (!*saved || **saved == '\0'))
+		return (0);
 	return (bytes_read);
 }
 
@@ -59,7 +73,7 @@ char	*get_next_line(int fd)
 	static char	*saved;
 	char		*line;
 
-	if (read_and_save(fd, &saved) < 0 || saved == NULL || saved[0] == '\0')
+	if (read_and_save(fd, &saved) <= 0 && (!saved || saved[0] == '\0'))
 	{
 		free(saved);
 		saved = NULL;

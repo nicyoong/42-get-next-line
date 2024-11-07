@@ -4,7 +4,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <assert.h>
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 // Helper function to create test files
 void create_test_file(const char *filename, const char *content) {
@@ -173,16 +173,61 @@ void test_invalid_fd() {
     assert(line == NULL); // Invalid FD should return NULL
 }
 
+// BONUS: Test for handling multiple file descriptors
+void test_multiple_fds() {
+    // Create two small test files with distinct contents
+    create_test_file("test_file1.txt", "File 1, Line 1\nFile 1, Line 2\nFile 1, Line 3\n");
+    create_test_file("test_file2.txt", "File 2, Line 1\nFile 2, Line 2\n");
+
+    // Open both files for reading
+    int fd1 = open("test_file1.txt", O_RDONLY);
+    int fd2 = open("test_file2.txt", O_RDONLY);
+    assert(fd1 != -1 && fd2 != -1);
+
+    // Test reading lines from both files sequentially
+    char *line1 = get_next_line(fd1);
+    char *line2 = get_next_line(fd2);
+    assert(line1 && strcmp(line1, "File 1, Line 1\n") == 0);
+    assert(line2 && strcmp(line2, "File 2, Line 1\n") == 0);
+    free(line1);
+    free(line2);
+
+    // Continue reading from both files
+    line1 = get_next_line(fd1);
+    line2 = get_next_line(fd2);
+    assert(line1 && strcmp(line1, "File 1, Line 2\n") == 0);
+    assert(line2 && strcmp(line2, "File 2, Line 2\n") == 0);
+    free(line1);
+    free(line2);
+
+    // Continue reading until all lines are consumed
+    line1 = get_next_line(fd1);
+    line2 = get_next_line(fd2);
+    assert(line1 && strcmp(line1, "File 1, Line 3\n") == 0);
+    assert(line2 == NULL); // File 2 is finished
+    free(line1);
+
+    // Finish reading remaining file
+    line1 = get_next_line(fd1);
+    assert(line1 == NULL); // File 1 is finished
+    free(line1);
+
+    // Close file descriptors
+    close(fd1);
+    close(fd2);
+}
+
 int main() {
     test_basic_functionality();
     test_empty_file();
     test_single_line_without_newline();
     test_single_line_with_newline();
     test_large_file();
-	test_varied_buffer_sizes();
+    test_varied_buffer_sizes();
     test_empty_lines_and_multinewline();
     // test_very_long_line();
     test_invalid_fd();
+    test_multiple_fds();  // Added test for multiple file descriptors
 
     printf("All tests passed.\n");
     return 0;
