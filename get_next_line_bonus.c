@@ -117,7 +117,7 @@ char	*get_next_line(int fd)
 		free_fd_buffer(&head, fd);
 		return NULL;
 	}
-	line = extract_line(fd_buffer->saved);
+	line = extract_and_update_buffer(fd_buffer->saved);
 	if (ft_strchr(fd_buffer->saved, '\n'))
 		fd_buffer->saved = update_static_buffer(fd_buffer->saved, ft_strlen(line) - 1);
 	else

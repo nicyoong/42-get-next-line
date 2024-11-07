@@ -65,7 +65,7 @@ char	*get_next_line(int fd)
 		saved = NULL;
 		return (NULL);
 	}
-	line = extract_line(saved);
+	line = extract_and_update_buffer(saved);
 	if (ft_strchr(saved, '\n'))
 		saved = update_static_buffer(saved, ft_strlen(line) - 1);
 	else
