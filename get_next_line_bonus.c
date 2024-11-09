@@ -6,7 +6,7 @@
 /*   By: nyoong <nyoong@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 16:45:09 by nyoong            #+#    #+#             */
-/*   Updated: 2024/11/07 17:18:01 by nyoong           ###   ########.fr       */
+/*   Updated: 2024/11/09 22:07:56 by nyoong           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,13 +89,18 @@ static char	*extract_and_update_buffer(char **saved)
 	return (line);
 }
 
-static int	read_and_save(int fd, char **saved)
+static int read_and_save(int fd, char **saved)
 {
-	char	buffer[BUFFER_SIZE + 1];
+	char	*buffer;
 	ssize_t	bytes_read;
 	char	*temp;
-
-	bytes_read = read(fd, buffer, BUFFER_SIZE);
+	size_t	buffer_size;
+	
+	buffer_size = BUFFER_SIZE;
+	buffer = (char *)malloc(buffer_size + 1);
+	if (!buffer)
+		return (-1);
+	bytes_read = read(fd, buffer, buffer_size);
 	while (bytes_read > 0)
 	{
 		buffer[bytes_read] = '\0';
@@ -108,9 +113,17 @@ static int	read_and_save(int fd, char **saved)
 		else
 			*saved = ft_strdup(buffer);
 		if (ft_strchr(*saved, '\n'))
-			return (1);
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
+			break;
+		if ((size_t)bytes_read == buffer_size)
+		{
+			buffer_size *= 2;
+			buffer = (char *)realloc(buffer, buffer_size + 1);
+			if (!buffer)
+				return (-1);
+		}
+		bytes_read = read(fd, buffer, buffer_size);
 	}
+	free(buffer);
 	if (bytes_read == 0 && (!*saved || **saved == '\0'))
 		return (0);
 	return (bytes_read);
@@ -128,13 +141,10 @@ char	*get_next_line(int fd)
 		free_fd_buffer(&head, fd);
 		return (NULL);
 	}
-	if (read_and_save(fd, &fd_buffer->saved) <= 0)
+	if (!fd_buffer->saved || fd_buffer->saved[0] == '\0')
 	{
-		if (!fd_buffer->saved || fd_buffer->saved[0] == '\0')
-		{
-			free_fd_buffer(&head, fd);
-			return (NULL);
-		}
+		free_fd_buffer(&head, fd);
+		return (NULL);
 	}
 	line = extract_and_update_buffer(&fd_buffer->saved);
 	return (line);
