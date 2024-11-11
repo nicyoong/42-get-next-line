@@ -24,3 +24,30 @@ static int	read_and_save(int fd, char **saved)
 		return (0);
 	return (bytes_read);
 }
+
+static int read_and_save(int fd, char **saved)
+{
+    char    buffer[BUFFER_SIZE + 1];
+    ssize_t bytes_read;
+    char    *temp;
+
+    while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0)
+    {
+        buffer[bytes_read] = '\0';
+        if (*saved)
+        {
+            temp = ft_strjoin(*saved, buffer);
+            free(*saved);
+            *saved = temp;
+        }
+        else
+            *saved = ft_strdup(buffer);
+        if (ft_strchr(*saved, '\n'))
+            break;
+    }
+    if (bytes_read < 0)  // Handle read error
+        return (-1);
+    if (bytes_read == 0 && (!*saved || **saved == '\0'))
+        return (0);
+    return (1);
+}
