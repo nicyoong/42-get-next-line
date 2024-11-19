@@ -6,7 +6,7 @@
 /*   By: nyoong <nyoong@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 16:44:47 by nyoong            #+#    #+#             */
-/*   Updated: 2024/11/09 22:07:07 by nyoong           ###   ########.fr       */
+/*   Updated: 2024/11/12 19:12:37 by nyoong           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,18 +43,13 @@ static char	*extract_and_update_buffer(char **saved)
 	return (line);
 }
 
-static int read_and_save(int fd, char **saved)
+static int	read_and_save(int fd, char **saved)
 {
-	char	*buffer;
+	char	buffer[BUFFER_SIZE + 1];
 	ssize_t	bytes_read;
 	char	*temp;
-	size_t	buffer_size;
-	
-	buffer_size = BUFFER_SIZE;
-	buffer = (char *)malloc(buffer_size + 1);
-	if (!buffer)
-		return (-1);
-	bytes_read = read(fd, buffer, buffer_size);
+
+	bytes_read = read(fd, buffer, BUFFER_SIZE);
 	while (bytes_read > 0)
 	{
 		buffer[bytes_read] = '\0';
@@ -67,17 +62,9 @@ static int read_and_save(int fd, char **saved)
 		else
 			*saved = ft_strdup(buffer);
 		if (ft_strchr(*saved, '\n'))
-			break;
-		if ((size_t)bytes_read == buffer_size)
-		{
-			buffer_size *= 2;
-			buffer = (char *)realloc(buffer, buffer_size + 1);
-			if (!buffer)
-				return (-1);
-		}
-		bytes_read = read(fd, buffer, buffer_size);
+			return (1);
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
 	}
-	free(buffer);
 	if (bytes_read == 0 && (!*saved || **saved == '\0'))
 		return (0);
 	return (bytes_read);
